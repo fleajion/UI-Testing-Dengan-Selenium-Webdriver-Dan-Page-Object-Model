@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -37,3 +38,19 @@ build/
 
 ### Mac OS ###
 .DS_Store
+=======
+# Test Complete ignore files: https://support.smartbear.com/viewarticle/68002/
+
+# Tester-specific Settings
+*.tcCFGExtender
+*.tcLS
+
+# Type library declarations
+*.tlb
+
+# Log files
+*.tcLogs
+
+# Backup files
+*.bak
+>>>>>>> b5d7c6cbd0df932800aa1ee81406cc78bb90c80b
