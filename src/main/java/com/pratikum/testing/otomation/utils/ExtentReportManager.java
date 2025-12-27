@@ -7,7 +7,7 @@ import com.aventstack.extentreports.reporter.configuration.Theme;
 
 public class ExtentReportManager {
     private static ExtentReports extent;
-    private static ExtentTest test;
+    public static ExtentTest test;
 
     public static ExtentReports createInstance(String fileName) {
         ExtentSparkReporter sparkReporter = new ExtentSparkReporter(fileName);

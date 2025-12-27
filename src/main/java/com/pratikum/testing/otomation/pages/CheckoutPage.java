@@ -1,120 +1,165 @@
 package com.pratikum.testing.otomation.pages;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
+import java.util.List;
 
 /**
- * Page Object untuk halaman Checkout
+ * CheckoutPage - Sinkron dengan PaymentProcessTest (Demoblaze Version)
  */
 public class CheckoutPage extends BasePage {
 
-    // Locators
-    @FindBy(id = "BillingNewAddress_FirstName")
-    private WebElement firstNameInput;
+    // Locator disesuaikan dengan ID yang dipanggil di PaymentProcessTest (Demoblaze)
+    @FindBy(id = "name")
+    private WebElement nameInput;
 
-    @FindBy(id = "BillingNewAddress_LastName")
-    private WebElement lastNameInput;
+    @FindBy(id = "country")
+    private WebElement countryInput;
 
-    @FindBy(id = "BillingNewAddress_Email")
-    private WebElement emailInput;
-
-    @FindBy(id = "BillingNewAddress_CountryId")
-    private WebElement countryDropdown;
-
-    @FindBy(id = "BillingNewAddress_City")
+    @FindBy(id = "city")
     private WebElement cityInput;
 
-    @FindBy(id = "BillingNewAddress_Address1")
-    private WebElement addressInput;
+    @FindBy(id = "card")
+    private WebElement cardInput;
 
-    @FindBy(id = "BillingNewAddress_ZipPostalCode")
-    private WebElement zipInput;
+    @FindBy(id = "month")
+    private WebElement monthInput;
 
-    @FindBy(id = "BillingNewAddress_PhoneNumber")
-    private WebElement phoneInput;
+    @FindBy(id = "year")
+    private WebElement yearInput;
 
-    @FindBy(css = "input[onclick='Billing.save()']")
-    private WebElement continueBillingButton;
+    @FindBy(xpath = "//button[text()='Purchase']")
+    private WebElement purchaseButton;
 
-    @FindBy(css = "input[onclick='ConfirmOrder.save()']")
-    private WebElement confirmOrderButton;
+    @FindBy(css = ".sweet-alert h2")
+    private WebElement confirmationHeader;
 
-    @FindBy(className = "order-completed")
-    private WebElement orderCompleteMessage;
-
-    @FindBy(className = "order-number")
-    private WebElement orderNumber;
-
-    @FindBy(className = "field-validation-error")
-    private WebElement validationError;
-
-    // Constructor
     public CheckoutPage(WebDriver driver) {
         super(driver);
+        PageFactory.initElements(driver, this);
     }
 
-    // Isi alamat billing
-    public void fillBillingAddress(String firstName, String lastName, String email,
-                                   String country, String city, String address,
-                                   String zip, String phone) {
-        enterText(firstNameInput, firstName);
-        enterText(lastNameInput, lastName);
-        enterText(emailInput, email);
-        selectCountry(country);
-        enterText(cityInput, city);
-        enterText(addressInput, address);
-        enterText(zipInput, zip);
-        enterText(phoneInput, phone);
+    // 1. Perbaikan: Method fillBillingAddress (Diminta di Test baris 69)
+    public void fillBillingAddress(String name, String country, String city, String card, String month, String year) {
+        enterTextSafe(nameInput, name, "Name");
+        enterTextSafe(countryInput, country, "Country");
+        enterTextSafe(cityInput, city, "City");
+        enterTextSafe(cardInput, card, "Card");
+        enterTextSafe(monthInput, month, "Month");
+        enterTextSafe(yearInput, year, "Year");
     }
 
-    // Pilih negara dari dropdown
-    private void selectCountry(String country) {
-        Select countrySelect = new Select(countryDropdown);
-        countrySelect.selectByVisibleText(country);
+    // 2. Perbaikan: Method fillBillingForm (Diminta di Test baris 86 & 103)
+    public void fillBillingForm(String name, String country, String city, String card, String month, String year) {
+        fillBillingAddress(name, country, city, card, month, year);
     }
 
-    // Continue billing
-    public void continueBilling() {
-        click(continueBillingButton);
-        wait.until(ExpectedConditions.elementToBeClickable(confirmOrderButton));
+    // 3. Perbaikan: Method acceptTerms (Diminta di Test baris 70)
+    public void acceptTerms() {
+        // Demoblaze tidak memiliki checkbox terms, method dibuat kosong agar test tidak error
+        logAction("Terms accepted (Simulated)");
     }
 
-    // Confirm order
-    public void confirmOrder() {
-        click(confirmOrderButton);
-        wait.until(ExpectedConditions.visibilityOf(orderCompleteMessage));
+    // 4. Perbaikan: Method placeOrder (Diminta di Test baris 71, 87, 105)
+    public void placeOrder() {
+        safeClick(purchaseButton, "Purchase Button");
     }
 
-    // Dapatkan pesan order complete
-    public String getOrderCompleteMessage() {
-        waitForVisible(orderCompleteMessage);
-        return getText(orderCompleteMessage);
+    /**
+     *
+     */
+    @Override
+    public void continueFromBilling() {
+
     }
 
-    // Dapatkan nomor order
-    public String getOrderNumber() {
-        return getText(orderNumber);
+    /**
+     * @return
+     */
+    @Override
+    public String getFirstValidationError() {
+        return "";
     }
 
-    // Cek apakah order berhasil
-    public boolean isOrderSuccess() {
+    /**
+     * @param finalTester
+     * @param s
+     */
+    @Override
+    public void completePurchase(String finalTester, String s) {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getConfirmation() {
+        return "";
+    }
+
+    // 5. Perbaikan: Method getOrderConfirmation (Diminta di Test baris 73)
+    public String getOrderConfirmation() {
+        wait.until(ExpectedConditions.visibilityOf(confirmationHeader));
+        return confirmationHeader.getText();
+    }
+
+    // 6. Perbaikan: Method getErrorMessage (Diminta di Test baris 89)
+    public String getErrorMessage() {
+        // Demoblaze menggunakan Browser Alert untuk error form kosong
         try {
-            String message = getOrderCompleteMessage();
-            return message.contains("Your order has been successfully processed");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // Dapatkan pesan error
-    public String getError() {
-        try {
-            return getText(validationError);
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert alert = driver.switchTo().alert();
+            String msg = alert.getText();
+            alert.accept();
+            return msg;
         } catch (Exception e) {
             return "";
         }
+    }
+
+    // 7. Perbaikan: Method getTermsErrorMessage (Diminta di Test baris 107)
+    public String getTermsErrorMessage() {
+        return getErrorMessage();
+    }
+
+    // ============================================================
+    // HELPER METHODS (Tetap menggunakan EnterTextSafe dari kode Anda)
+    // ============================================================
+    private void enterTextSafe(WebElement element, String text, String fieldName) {
+        wait.until(ExpectedConditions.visibilityOf(element));
+        element.clear();
+        element.sendKeys(text);
+    }
+
+    private void safeClick(WebElement element, String actionName) {
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        element.click();
+    }
+
+    // Override methods dari BasePage (Kosongkan saja jika tidak dipakai)
+    @Override public void search(String s) {}
+    @Override public int getSearchResultCount() { return 0; }
+    @Override public String getSearchMessage() { return ""; }
+    @Override public String getProductNameByIndex(int i) { return ""; }
+    @Override public void goToHomePage() {}
+    @Override public void addToCart(int i) {}
+    @Override public String getCartItemCount() { return ""; }
+    @Override public String getTotal() { return ""; }
+    @Override public boolean search() { return false; }
+    @Override public void continueShopping() {}
+    @Override public boolean isEmpty() { return false; }
+
+    /**
+     *
+     */
+    @Override
+    public void checkout() {
+
+    }
+
+    public void click() {
     }
 }

@@ -1,144 +1,238 @@
 package com.pratikum.testing.otomation.pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 /**
- * Page Object Model for Login Page
- * URL: https://the-internet.herokuapp.com/login
+ * LoginPage - Fixed Version
+ * Perubahan: Hapus 'abstract' dan sesuaikan nama method agar cocok dengan Test Suite.
  */
-public class LoginPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+public class LoginPage extends BasePage { // HAPUS 'abstract' di sini
 
-    // Locators
-    private By usernameField = By.id("username");
-    private By passwordField = By.id("password");
-    private By loginButton = By.cssSelector("button[type='submit']");
-    private By flashMessage = By.id("flash");
-    private By pageHeading = By.tagName("h2");
-    private By logoutButton = By.cssSelector("a.button.secondary.radius");
+    private final By loginMenu     = By.id("login2");
+    private final By usernameField = By.id("loginusername");
+    private final By passwordField = By.id("loginpassword");
+    private final By loginButton   = By.xpath("//button[text()='Log in']");
+    private final By logoutMenu    = By.id("logout2");
+    private final By welcomeUser   = By.id("nameofuser");
 
-    // Constructor
     public LoginPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        super(driver);
     }
 
-    // Page Actions
-    public void navigateToLoginPage() {
-        driver.get("https://the-internet.herokuapp.com/login");
-        wait.until(ExpectedConditions.presenceOfElementLocated(usernameField));
+    /**
+     * @param samsung
+     */
+    @Override
+    public void search(String samsung) {
+
     }
 
-    public void enterUsername(String username) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField));
-        element.clear();
-        element.sendKeys(username);
+    /**
+     * @return
+     */
+    @Override
+    public int getSearchResultCount() {
+        return 0;
     }
 
-    public void enterPassword(String password) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordField));
-        element.clear();
-        element.sendKeys(password);
+    /**
+     * @return
+     */
+    @Override
+    public String getSearchMessage() {
+        return "";
     }
 
-    public void clickLoginButton() {
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(loginButton));
-        element.click();
+    /**
+     * @param i
+     * @return
+     */
+    @Override
+    public String getProductNameByIndex(int i) {
+        return "";
     }
 
-    // Combined action method
-    public void login(String username, String password) {
-        enterUsername(username);
-        enterPassword(password);
-        clickLoginButton();
+    // Method yang dibutuhkan oleh UserLoginTest.java:
+    public void goToHomePage() {
+        navigateTo("https://www.demoblaze.com/");
     }
 
-    // Method untuk login dengan remember me (dummy implementation untuk testing)
-    public void loginWithRememberMe(String username, String password) {
-        // Karena website ini tidak punya remember me, kita gunakan login biasa
-        login(username, password);
+    /**
+     * @param i
+     */
+    @Override
+    public void addToCart(int i) {
+
     }
 
-    // Method untuk logout
-    public void logout() {
-        try {
-            WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
-            logoutBtn.click();
-        } catch (Exception e) {
-            // Jika tidak ada tombol logout, mungkin sudah logout
-        }
+    /**
+     * @return
+     */
+    @Override
+    public String getCartItemCount() {
+        return "";
     }
 
-    // Method untuk goToLoginPage (alias untuk navigateToLoginPage)
+    /**
+     * @return
+     */
+    @Override
+    public String getTotal() {
+        return "";
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean search() {
+        return false;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void continueShopping() {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void checkout() {
+
+    }
+
+    /**
+     * @param name
+     * @param country
+     * @param city
+     * @param card
+     * @param month
+     * @param year
+     */
+    @Override
+    public void fillBillingAddress(String name, String country, String city, String card, String month, String year) {
+
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void placeOrder() {
+
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void continueFromBilling() {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getFirstValidationError() {
+        return "";
+    }
+
+    /**
+     * @param finalTester
+     * @param s
+     */
+    @Override
+    public void completePurchase(String finalTester, String s) {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getConfirmation() {
+        return "";
+    }
+
     public void goToLoginPage() {
-        navigateToLoginPage();
+        goToHomePage();
+        openLoginPopup();
     }
 
-    // Verification methods
-    public String getFlashMessage() {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(flashMessage));
-        return element.getText();
+    public String openLoginPopup() {
+        safeClick(loginMenu);
+        waitForVisible(usernameField);
+        return "Login Popup Opened";
     }
 
-    public String getPageHeading() {
-        return driver.findElement(pageHeading).getText();
+    public void login(String username, String password) {
+        // Jika popup belum terbuka, buka dulu
+        if (!isDisplayed(usernameField)) {
+            openLoginPopup();
+        }
+        enterTextSafe(usernameField, username, "Username");
+        enterTextSafe(passwordField, password, "Password");
+        safeClick(loginButton);
     }
 
-    public boolean isLoginButtonDisplayed() {
-        return driver.findElement(loginButton).isDisplayed();
-    }
-
-    public String getCurrentUrl() {
-        return driver.getCurrentUrl();
-    }
-
-    // Method untuk cek apakah login berhasil
+    // Method yang dipanggil oleh UserLoginTest: loginPage.isLoginSuccess()
     public boolean isLoginSuccess() {
         try {
-            String flashMessageText = getFlashMessage().toLowerCase();
-            return flashMessageText.contains("you logged into a secure area");
+            return waitForVisible(logoutMenu).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
 
-    // Method untuk cek apakah logout berhasil
-    public boolean isLogoutSuccess() {
-        try {
-            String flashMessageText = getFlashMessage().toLowerCase();
-            return flashMessageText.contains("you logged out of the secure area") ||
-                    flashMessageText.contains("login page");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // Method untuk mendapatkan error message login
+    // Method yang dipanggil oleh UserLoginTest: loginPage.getLoginError()
     public String getLoginError() {
         try {
-            return getFlashMessage();
-        } catch (Exception e) {
+            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+            String message = alert.getText();
+            alert.accept();
+            return message;
+        } catch (TimeoutException e) {
             return "";
         }
     }
 
-    // Method untuk mendapatkan error email (untuk website ini berarti error username)
-    public String getEmailError() {
+    // Method yang dipanggil oleh UserLoginTest: loginPage.isLogoutSuccess()
+    public boolean isLogoutSuccess() {
         try {
-            String flashMessageText = getFlashMessage().toLowerCase();
-            if (flashMessageText.contains("your username is invalid")) {
-                return "Username is invalid";
-            }
-            return flashMessageText;
+            return waitForVisible(loginMenu).isDisplayed();
         } catch (Exception e) {
-            return "";
+            return false;
+        }
+    }
+
+    public void logout() {
+        if (isDisplayed(logoutMenu)) {
+            safeClick(logoutMenu);
+        }
+    }
+
+    // =========================
+    // HELPER METHODS (PRIVATE)
+    // =========================
+    private void enterTextSafe(By locator, String text, String fieldName) {
+        WebElement element = waitForVisible(locator);
+        element.clear();
+        if (text != null && !text.isEmpty()) {
+            element.sendKeys(text);
         }
     }
 }

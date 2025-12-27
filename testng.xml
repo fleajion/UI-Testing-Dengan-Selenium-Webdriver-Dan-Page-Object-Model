@@ -10,18 +10,20 @@
 
     <test name="Otomation Test - Sequential Execution">
         <classes>
-            <class name="com.pratikum.testing.otomation.test.demo.LocatorStrategiesDemo"/>
-            <class name="com.pratikum.testing.otomation.test.demo.FormInteractionDemo"/>
-            <class name="com.pratikum.testing.otomation.test.demo.NavigationAndWindowDemo"/>
-            <class name="com.pratikum.testing.otomation.test.demo.JavaScriptExecutorDemo"/>
-            <class name="com.pratikum.testing.otomation.test.demo.WaitStrategiesDemo"/>
-            <class name="com.pratikum.testing.otomation.test.demo.AlertHandlingDemo"/>
+            <class name="com.pratikum.testing.otomation.test.demo.DemoblazeE2ETest"/>
+            <class name="com.pratikum.testing.otomation.test.demo.DemoblazeFormAndFlowTest"/>
+            <class name="com.pratikum.testing.otomation.test.demo.DemoblazeNavigationAndFlowTest"/>
+            <class name="com.pratikum.testing.otomation.test.demo.JavaScriptExecutorDemoblazeTest"/>
+            <class name="com.pratikum.testing.otomation.test.demo.WaitStrategiesDemoblazeTest"/>
+            <class name="com.pratikum.testing.otomation.test.demo.AlertHandlingDemoblazeTest"/>
+            <class name="com.pratikum.testing.otomation.test.demo.BaseTest"></class>
+            <class name="com.pratikum.testing.otomation.test.demo.PaymentProcessTest"></class>
         </classes>
     </test>
 
     <test name="POM Demo Tests">
         <classes>
-            <class name="com.pratikum.testing.otomation.test.demo.LoginTestWithPOM"/>
+            <class name="com.pratikum.testing.otomation.test.demo.LoginPage"/>
         </classes>
     </test>
 

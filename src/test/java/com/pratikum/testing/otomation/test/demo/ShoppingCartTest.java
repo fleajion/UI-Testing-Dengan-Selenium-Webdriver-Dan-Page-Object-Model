@@ -5,302 +5,166 @@ import com.pratikum.testing.otomation.pages.CartPage;
 import com.pratikum.testing.otomation.pages.HomePage;
 import com.pratikum.testing.otomation.pages.LoginPage;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Test class untuk feature Shopping Cart (10 test cases)
+ * QA Senior Automation Test
+ * Feature: Shopping Cart – Demoblaze
+ * Coverage:
+ * - Add / Remove item
+ * - Quantity update
+ * - Cart total calculation
+ * - Cart persistence after login
+ * - Boundary & negative handling
  */
 public class ShoppingCartTest extends BaseTest {
 
-    @Test(priority = 1, description = "Test menambahkan single product ke cart")
+    private HomePage homePage;
+    private CartPage cartPage;
+    private LoginPage loginPage;
+
+    @BeforeMethod
+    public void setup() {
+        homePage = new HomePage(driver);
+        cartPage = new CartPage(driver);
+        loginPage = new LoginPage(driver);
+
+        homePage.goToHomePage();
+        test.log(Status.INFO, "Navigated to Home Page");
+    }
+
+    @AfterMethod
+    public void cleanup() {
+        try {
+            homePage.goToCart();
+            while (cartPage.getItemCount() > 0) {
+                cartPage.removeItem(0);
+            }
+            test.log(Status.INFO, "Cart cleaned up after test");
+        } catch (Exception ignored) {}
+    }
+
+    @Test(priority = 1, description = "Add single product to cart")
     public void testAddSingleProductToCart() {
-        test.log(Status.INFO, "Memulai test tambah single product ke cart");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
+        test.log(Status.INFO, "Add single product");
 
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah produk pertama ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk pertama ke cart");
-
-        // Verifikasi cart quantity bertambah
         String cartQty = homePage.getCartItemCount();
-        Assert.assertNotEquals(cartQty, "0", "Cart quantity harus bertambah");
-        test.log(Status.INFO, "Cart quantity: " + cartQty);
 
-        // Buka cart untuk verifikasi
+        Assert.assertNotEquals(cartQty, "(0)", "Cart quantity harus bertambah");
+
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
+        Assert.assertEquals(cartPage.getItemCount(), 1, "Cart harus berisi 1 item");
 
-        // Verifikasi produk ada di cart
-        int itemCount = cartPage.getItemCount();
-        Assert.assertTrue(itemCount > 0, "Harus ada produk di cart");
-
-        test.log(Status.PASS, "Single product berhasil ditambah - " + itemCount + " item");
-
-        // Bersih-bersih
-        cartPage.removeItem(0);
-        test.log(Status.INFO, "Bersih-bersih - hapus item dari cart");
+        test.log(Status.PASS, "Single product successfully added");
     }
 
-    @Test(priority = 2, description = "Test menambahkan multiple products ke cart")
+    @Test(priority = 2, description = "Add multiple products to cart")
     public void testAddMultipleProductsToCart() {
-        test.log(Status.INFO, "Memulai test tambah multiple products ke cart");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
+        test.log(Status.INFO, "Add multiple products");
 
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah dua produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk pertama ke cart");
-
         homePage.addToCart(1);
-        test.log(Status.INFO, "Tambah produk kedua ke cart");
 
-        // Buka cart
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
+        Assert.assertTrue(cartPage.getItemCount() >= 2, "Minimal 2 produk harus ada di cart");
 
-        // Verifikasi ada multiple produk
-        int itemCount = cartPage.getItemCount();
-        Assert.assertTrue(itemCount >= 2, "Harus ada minimal 2 produk di cart");
-
-        test.log(Status.PASS, "Multiple products berhasil ditambah");
-
-        // Bersih-bersih
-        for (int i = 0; i < itemCount; i++) {
-            cartPage.removeItem(0);
-        }
-        test.log(Status.INFO, "Bersih-bersih - hapus semua item dari cart");
+        test.log(Status.PASS, "Multiple products added successfully");
     }
 
-    @Test(priority = 3, description = "Test update product quantity di cart")
+    @Test(priority = 3, description = "Update product quantity")
     public void testUpdateProductQuantity() {
-        test.log(Status.INFO, "Memulai test update quantity di cart");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart");
-
-        // Buka cart
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
 
-        // Update quantity menjadi 3
         cartPage.updateQuantity(0, 3);
-        test.log(Status.INFO, "Update quantity menjadi 3");
-
-        // Verifikasi cart terupdate
         String total = cartPage.getTotal();
-        Assert.assertNotNull(total, "Cart total harus terupdate");
-        test.log(Status.PASS, "Quantity berhasil diupdate - total: " + total);
 
-        // Bersih-bersih
-        cartPage.removeItem(0);
-        test.log(Status.INFO, "Bersih-bersih - hapus item dari cart");
+        Assert.assertFalse(total.isEmpty(), "Cart total harus terupdate");
+
+        test.log(Status.PASS, "Quantity updated successfully, total: " + total);
     }
 
-    @Test(priority = 4, description = "Test remove product dari cart")
+    @Test(priority = 4, description = "Remove product from cart")
     public void testRemoveProductFromCart() {
-        test.log(Status.INFO, "Memulai test remove product dari cart");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart");
-
-        // Buka cart
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
 
-        // Verifikasi produk ada sebelum remove
-        int beforeRemove = cartPage.getItemCount();
-        Assert.assertTrue(beforeRemove > 0, "Harus ada produk sebelum remove");
-        test.log(Status.INFO, "Jumlah item sebelum remove: " + beforeRemove);
+        Assert.assertTrue(cartPage.getItemCount() > 0, "Item harus ada sebelum dihapus");
 
-        // Remove produk
         cartPage.removeItem(0);
-        test.log(Status.INFO, "Remove produk dari cart");
+        Assert.assertTrue(cartPage.search(), "Cart harus kosong setelah remove");
 
-        // Verifikasi cart kosong
-        boolean isEmpty = cartPage.isEmpty();
-        Assert.assertTrue(isEmpty, "Cart harus kosong setelah remove");
-        test.log(Status.PASS, "Remove berhasil - cart kosong: " + isEmpty);
+        test.log(Status.PASS, "Product removed successfully");
     }
 
-    @Test(priority = 5, description = "Test cart total calculation")
+    @Test(priority = 5, description = "Validate cart total calculation")
     public void testCartTotalCalculation() {
-        test.log(Status.INFO, "Memulai test cart total calculation");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart");
-
-        // Buka cart
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
 
-        // Dapatkan total cart
         String total = cartPage.getTotal();
-        Assert.assertNotNull(total, "Cart total harus ditampilkan");
-        Assert.assertFalse(total.isEmpty(), "Cart total tidak boleh kosong");
-        test.log(Status.PASS, "Cart total calculation berhasil - total: " + total);
+        Assert.assertTrue(total.matches(".*\\d+.*"), "Total harus mengandung nilai angka");
 
-        // Bersih-bersih
-        cartPage.removeItem(0);
-        test.log(Status.INFO, "Bersih-bersih - hapus item dari cart");
+        test.log(Status.PASS, "Cart total displayed correctly: " + total);
     }
 
-    @Test(priority = 6, description = "Test continue shopping functionality")
+    @Test(priority = 6, description = "Continue shopping navigation")
     public void testContinueShoppingFunctionality() {
-        test.log(Status.INFO, "Memulai test continue shopping");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart");
-
-        // Buka cart
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
 
-        // Klik continue shopping
         cartPage.continueShopping();
-        test.log(Status.INFO, "Klik continue shopping");
+        Assert.assertTrue(driver.getCurrentUrl().contains("demoblaze"), "Harus kembali ke halaman utama");
 
-        // Verifikasi kembali ke home page
-        Assert.assertTrue(driver.getCurrentUrl().contains("demowebshop"),
-                "Harus kembali ke home page");
-        test.log(Status.PASS, "Continue shopping berhasil - kembali ke home page");
-
-        // Bersih-bersih
-        homePage.goToCart();
-        cartPage.removeItem(0);
-        test.log(Status.INFO, "Bersih-bersih - hapus item dari cart");
+        test.log(Status.PASS, "Continue shopping works correctly");
     }
 
-    @Test(priority = 7, description = "Test empty cart scenario")
+    @Test(priority = 7, description = "Empty cart scenario")
     public void testEmptyCartScenario() {
-        test.log(Status.INFO, "Memulai test empty cart scenario");
-        CartPage cartPage = new CartPage(driver);
+        cartPage.goToHomePage();
+        Assert.assertTrue(cartPage.isEmpty(), "Cart baru harus kosong");
 
-        // Buka cart page langsung
-        cartPage.goToCartPage();
-        test.log(Status.INFO, "Buka halaman cart langsung");
-
-        // Verifikasi cart kosong
-        boolean isEmpty = cartPage.isEmpty();
-        Assert.assertTrue(isEmpty, "Cart baru harus kosong");
-        test.log(Status.PASS, "Empty cart scenario berhasil - cart kosong: " + isEmpty);
+        test.log(Status.PASS, "Empty cart validated");
     }
 
-    @Test(priority = 8, description = "Test cart persistence setelah login")
+    @Test(priority = 8, description = "Cart persistence after login")
     public void testCartPersistenceAfterLogin() {
-        test.log(Status.INFO, "Memulai test cart persistence setelah login");
-        HomePage homePage = new HomePage(driver);
-        LoginPage loginPage = new LoginPage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        // Tambah produk sebelum login
-        homePage.goToHomePage();
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart sebelum login");
 
-        // Login
-        loginPage.goToLoginPage();
+        loginPage.goToHomePage();
         loginPage.login("testuser@example.com", "Test@123");
-        test.log(Status.INFO, "Login ke akun");
 
-        // Verifikasi cart items tetap ada
         homePage.goToHomePage();
-        String cartQty = homePage.getCartItemCount();
-        Assert.assertNotEquals(cartQty, "0", "Cart items harus tetap ada setelah login");
-        test.log(Status.PASS, "Cart persistence berhasil - quantity: " + cartQty);
+        Assert.assertNotEquals(homePage.getCartItemCount(), "(0)", "Item cart harus tetap ada setelah login");
 
-        // Bersih-bersih
-        homePage.goToCart();
-        cartPage.removeItem(0);
-        loginPage.logout();
-        test.log(Status.INFO, "Bersih-bersih - hapus item dan logout");
+        test.log(Status.PASS, "Cart persistence verified");
     }
 
-    @Test(priority = 9, description = "Test maximum quantity validation")
+    @Test(priority = 9, description = "Maximum quantity boundary handling")
     public void testMaximumQuantityValidation() {
-        test.log(Status.INFO, "Memulai test maximum quantity validation");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Tambah produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart");
-
-        // Buka cart
         homePage.goToCart();
-        test.log(Status.INFO, "Buka halaman cart");
 
-        // Coba set quantity sangat tinggi
         cartPage.updateQuantity(0, 9999);
-        test.log(Status.INFO, "Coba set quantity ke 9999");
-
-        // Verifikasi system handle tanpa error
         String total = cartPage.getTotal();
-        Assert.assertNotNull(total, "System harus handle high quantity tanpa error");
-        test.log(Status.PASS, "Maximum quantity test berhasil - total: " + total);
 
-        // Bersih-bersih
-        cartPage.removeItem(0);
+        Assert.assertFalse(total.isEmpty(), "System harus handle quantity besar tanpa error");
+
+        test.log(Status.PASS, "High quantity handled correctly, total: " + total);
     }
 
-    @Test(priority = 10, description = "Test cart icon update")
+    @Test(priority = 10, description = "Cart icon update verification")
     public void testCartIconUpdate() {
-        test.log(Status.INFO, "Memulai test cart icon update");
-        HomePage homePage = new HomePage(driver);
-        CartPage cartPage = new CartPage(driver);
-
-        homePage.goToHomePage();
-        test.log(Status.INFO, "Buka halaman home");
-
-        // Dapatkan quantity awal
         String initialQty = homePage.getCartItemCount();
-        test.log(Status.INFO, "Cart quantity awal: " + initialQty);
 
-        // Tambah produk ke cart
         homePage.addToCart(0);
-        test.log(Status.INFO, "Tambah produk ke cart");
-
-        // Verifikasi cart icon terupdate
         String updatedQty = homePage.getCartItemCount();
-        Assert.assertNotEquals(updatedQty, initialQty, "Cart icon harus terupdate");
-        test.log(Status.PASS, "Cart icon update berhasil - dari " + initialQty + " ke " + updatedQty);
 
-        // Bersih-bersih
-        homePage.goToCart();
-        cartPage.removeItem(0);
-        test.log(Status.INFO, "Bersih-bersih - hapus item dari cart");
+        Assert.assertNotEquals(updatedQty, initialQty, "Cart icon quantity harus berubah");
+
+        test.log(Status.PASS, "Cart icon updated correctly: " + updatedQty);
     }
 }
